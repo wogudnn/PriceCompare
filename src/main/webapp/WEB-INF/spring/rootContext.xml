@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+<!-- DriverManager.getConnection()을 대체할 객체 -->
+		<bean id="dataSource" 
+		class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
+		<property name="username" value="PRICE_COMPARE"/>
+		<property name="password" value="PRICE_COMPARE"/>
+		</bean>
+
+
+		<bean	id="sqlSessionFactory"
+				class="org.mybatis.spring.SqlSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="configLocation" value="classpath:/mybatis.xml"/>
+		</bean>
+		
+		<bean	id="sqlSessionTemplate"
+				class="org.mybatis.spring.SqlSessionTemplate">
+				<constructor-arg	name="sqlSessionFactory"
+									ref="sqlSessionFactory"/>
+		</bean>
+		
+		<!-- Transaction 설정 -->
+		
+		<bean	id="transactionManager"
+				class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+				<property name="dataSource" ref="dataSource"/>
+		</bean>
+		
+		<!-- Transaction 수행 Method 설정 -->
+		<tx:advice	id="txAdvice"
+					transaction-manager="transactionManager">
+			<tx:attributes>
+				<!-- insert -->
+				<tx:method name="add*" rollback-for="RuntimeException"/>
+				<tx:method name="new*" rollback-for="RuntimeException"/>
+				<tx:method name="append*" rollback-for="RuntimeException"/>
+				<tx:method name="insert*" rollback-for="RuntimeException"/>
+				<tx:method name="regist*" rollback-for="RuntimeException"/>
+				<tx:method name="put*" rollback-for="RuntimeException"/>
+				
+				<!-- update -->
+				<tx:method name="update*" rollback-for="RuntimeException"/>
+				<tx:method name="modify*" rollback-for="RuntimeException"/>
+				<tx:method name="replace*" rollback-for="RuntimeException"/>
+				<tx:method name="fix*" rollback-for="RuntimeException"/>
+				<tx:method name="plus*" rollback-for="RuntimeException"/>
+				<tx:method name="minus*" rollback-for="RuntimeException"/>
+				
+				<!-- Delete -->
+				<tx:method name="delete*" rollback-for="RuntimeException"/>
+				<tx:method name="remove*" rollback-for="RuntimeException"/>
+				<tx:method name="detach*" rollback-for="RuntimeException"/>
+				<tx:method name="drop*" rollback-for="RuntimeException"/>
+				
+				<!-- Select -->
+				<tx:method name="select*" read-only="true"/>
+				<tx:method name="get*" read-only="true"/>
+				
+				<!-- 공통 -->
+				<tx:method name="tx*" rollback-for="RuntimeException"/>
+			</tx:attributes>
+		</tx:advice>
+		
+		
+		<!-- 트랜젝션이 적용될 업무 담당 경계 설정 -->
+		<aop:config>
+			<!-- 업무경계 설정 -->
+			<!-- expression: 업무 경계 설정 Format -->
+			<!-- com.psy 패키지 서비스 패키지 이하의 Impl로 끝나는 모든 부분에서 모든 메소드를 의미한다. 기본의 p79-->
+			<aop:pointcut expression="execution(public * com.psy..service.*Impl.*(..))" id="servicePublicMethod"/>
+			
+			<!-- 트랜젝션 실행범위 지정 및 모니터링 시작 설정 -->
+			<aop:advisor advice-ref="txAdvice" pointcut-ref="servicePublicMethod"/>
+			
+		</aop:config>
+</beans>

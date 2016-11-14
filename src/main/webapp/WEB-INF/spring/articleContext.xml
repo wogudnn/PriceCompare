@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="articleService" class="com.psy.pricearticle.service.impl.ArticleServiceImpl">
+		<property name="articleBiz" ref="articleBiz"/>
+	</bean>
+	
+	<bean id="articleBiz" class="com.psy.pricearticle.biz.impl.ArticleBizImpl">
+		<property name="articleDao" ref="articleDao"/>
+	</bean>
+
+	<bean id="articleDao" class="com.psy.pricearticle.dao.impl.ArticleDaoImpl">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"/>
+	</bean>
+
+</beans>

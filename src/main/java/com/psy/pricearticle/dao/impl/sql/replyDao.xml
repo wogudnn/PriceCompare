@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="replyDao">
+	<resultMap type="ReplyVO" id="replyMap">
+		<id column="RPLY_ID" property="replyId" />
+		<result column="PRDCT_ARTC_ID" property="articleId"/>
+		<result column="USR_ID" property="userId"/>
+		<result column="RPLY_CONT" property="replyContent"/>
+		<result column="RPLY_CRT_DT" property="createdDate"/>
+		<result column="PRNT_RPLY_ID" property="parentReplyId"/>
+		<result column="LEVEL" property="level"/>
+		<association property="user" javaType="UserVO">
+			<id column="USR_ID" property="userId" />
+			<result column="USR_HSD_PWD" property="hashedPassword" />
+			<result column="USR_SALT" property="salt" />
+			<result column="USR_NM" property="userName" />
+			<result column="USR_PHONE" property="phoneNumber" />
+			<result column="USR_CRT_DT" property="createdDate" />
+			<result column="USR_PNT" property="point" />
+		</association>
+		<association property="article" javaType="ArticleVO">
+			<id column="PRDCT_ARTC_ID" property="articleId" />
+			<result column="PRDCT_ARTC_SBJ" property="subject" />
+			<result column="PRDCT_ARTC_CONT" property="content" />
+			<result column="PRDCT_ARTC_RL_FN" property="realFileName" />
+			<result column="PRDCT_ARTC_DP_FN" property="displayFileName" />
+			<result column="PRDCT_ARTC_CRT_DT" property="createdDate" />
+			<result column="USR_ID" property="userId" />
+			<result column="CTGR_ID" property="categoryId" />
+			<result column="PRDCT_ARTC_PRICE" property="price" />
+		</association>
+		<association property="parentReply" javaType="">
+			<id column="P_RPLY_ID" property="replyId" />
+			<result column="P_PRDCT_ARTC_ID" property="articleId"/>
+			<result column="P_USR_ID" property="userId"/>
+			<result column="P_RPLY_CONT" property="replyContent"/>
+			<result column="P_RPLY_CRT_DT" property="createdDate"/>
+			<result column="P_PRNT_RPLY_ID" property="parentReplyId"/>
+			<result column="P_LEVEL" property="level"/>
+		</association>
+	</resultMap>
+	
+	<insert id="addNewReply" parameterType="ReplyVO">
+	INSERT INTO /*[replyDao.xml][addNewReply]*/
+				REPLY
+				(
+   					RPLY_ID
+   					, PRDCT_ARTC_ID
+   					, USR_ID
+   					, RPLY_CONT
+   					, RPLY_CRT_DT
+   					, PRNT_RPLY_ID
+   				) 
+	VALUES		(	'RP-'||TO_CHAR(SYSDATE,'YYYYMMDD')||'-'||LPAD(RPLY_ID_SEQ.NEXTVAL,6,'0')
+					, #{articleId}
+					, #{userId}
+					, #{replyContent}
+					, SYSDATE
+					, #{parentReplyId}
+				)
+	</insert>
+
+	<select id="getAllReply" resultMap="replyMap" parameterType="string">
+	SELECT	/*[replyDao.xml][getAllReply]*/
+			LEVEL
+			, R.RPLY_ID
+			, R.PRDCT_ARTC_ID
+			, R.USR_ID
+			, R.RPLY_CONT
+			, R.RPLY_CRT_DT
+			, R.PRNT_RPLY_ID
+			, U.USR_PNT
+			, U.USR_PHONE
+			, U.USR_NM
+			, U.USR_CRT_DT
+			, A.PRDCT_ARTC_SBJ
+			, A.PRDCT_ARTC_CONT
+			, A.PRDCT_ARTC_CRT_DT
+			, A.CTGR_ID
+			, A.USR_ID
+			, A.PRDCT_ARTC_PRICE
+	FROM	REPLY R
+			, USR U
+			, PRDCT_ARTC A
+			, REPLY P
+	WHERE	R.USR_ID = U.USR_ID
+	AND		R.PRDCT_ARTC_ID = A.PRDCT_ARTC_ID
+	AND		R.PRNT_RPLY_ID = P.RPLY_ID(+)
+	AND		R.PRDCT_ARTC_ID = #{articleId}
+	CONNECT	BY	PRIOR	R.RPLY_ID = R.PRNT_RPLY_ID
+	START	WITH R.PRNT_RPLY_ID = '0'
+	</select>
+
+
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- <bean id="replyService" class="com.psy.pricearticle.service.impl.ReplyServiceImpl">
+		<property name="replyBiz" ref="replyBiz"/>
+	</bean>
+	
+	<bean id="replyBiz" class="com.psy.pricearticle.biz.impl.ReplyBizImpl">
+		<property name="replyDao" ref="replyDao"/>
+	</bean>
+	
+	<bean id="replyDao" class="com.psy.pricearticle.dao.impl.ReplyDaoImpl">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"/>
+	</bean> -->
+
+</beans>

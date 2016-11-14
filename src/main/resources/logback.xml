@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>
+				▶  %-5level %d{HH:mm:ss.SSS} [%thread] %logger[%method:%line] -%msg\n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- <appender name="file" class="ch.qos.logback.core.FileAppender">
+		<file>d:/mvcLogger.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>
+				▶  %-5level %d{HH:mm:ss.SSS} [%thread] %logger[%method:%line] -%msg\n
+			</pattern>
+		</encoder>
+	</appender> -->
+	
+	
+	<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>d:/mvc.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>
+				d:/MVC.%d{yyyy-MM-dd-HH}.log
+			</fileNamePattern>
+		</rollingPolicy>
+		<encoder>
+			<pattern>
+				▶  %-5level %d{HH:mm:ss.SSS} [%thread] %logger[%method:%line] -%msg\n
+			</pattern>
+		</encoder>
+	</appender>
+	<logger name="org.springframework" level="INFO"/>
+	<logger name="interceptor" level="INFO"/>
+	
+	<root level="DEBUG">
+		<appender-ref ref="file"/>
+		<appender-ref ref="console"/>
+	</root>	
+</configuration>

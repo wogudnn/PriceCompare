@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userDao">
+	<insert id="txSignUp" parameterType="UserVO">
+	INSERT INTO /*[userDao.xml][txSignUp]*/
+				USR		(
+							USR_ID
+							, USR_HSD_PWD
+							, USR_SALT
+							, USR_PNT
+							, USR_PHONE
+							, USR_NM
+							, USR_CRT_DT
+						) 
+	VALUES 				( 
+							#{userId}
+							, #{hashedPassword}
+							, #{salt}
+							, 100
+							, #{phoneNumber}
+							, #{userName}
+							, SYSDATE 
+						)
+	</insert>
+	
+	<select id="getSaltById" resultType="string" parameterType="string">
+		SELECT	/*[userDao.xml][getSaltById]*/
+				USR_SALT salt
+		FROM	USR
+		WHERE	USR_ID = #{userId}
+	</select>
+	
+	<select id="getUserInfo" resultType="UserVO" parameterType="UserVO">
+		SELECT	/*[userDao.xml][getUserInfo]*/
+				USR_ID userId
+				, USR_HSD_PWD hashedPassword
+				, USR_SALT salt
+				, USR_PNT point
+				, USR_PHONE phoneNumber
+				, USR_NM userName
+				, USR_CRT_DT createdDate
+		FROM	USR
+		WHERE	USR_ID = #{userId}
+		AND		USR_HSD_PWD = #{hashedPassword}
+	</select>
+
+</mapper>

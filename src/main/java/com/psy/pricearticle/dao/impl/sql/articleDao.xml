@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="articleDao">
+	<resultMap type="ArticleVO" id="articleMap">
+		<id column="PRDCT_ARTC_ID" property="articleId" />
+		<result column="PRDCT_ARTC_SBJ" property="subject" />
+		<result column="PRDCT_ARTC_CONT" property="content" />
+		<result column="PRDCT_ARTC_RL_FN" property="realFileName" />
+		<result column="PRDCT_ARTC_DP_FN" property="displayFileName" />
+		<result column="PRDCT_ARTC_CRT_DT" property="createdDate" />
+		<result column="USR_ID" property="userId" />
+		<result column="CTGR_ID" property="categoryId" />
+		<result column="PRDCT_ARTC_PRICE" property="price" />
+		<association property="user" javaType="UserVO">
+			<id column="USR_ID" property="userId" />
+			<result column="USR_HSD_PWD" property="hashedPassword" />
+			<result column="USR_SALT" property="salt" />
+			<result column="USR_NM" property="userName" />
+			<result column="USR_PHONE" property="phoneNumber" />
+			<result column="USR_CRT_DT" property="createdDate" />
+			<result column="USR_PNT" property="point" />
+		</association>
+		<association property="categoryVO" javaType="CategoryVO">
+			<id column="CTGR_ID" property="categoryId" />
+			<result column="CTGR_NM" property="categoryName" />
+		</association>
+	</resultMap>
+
+	<select id="getAllArticle" resultMap="articleMap" parameterType="ArticleSearchVO">
+	SELECT	*	
+	FROM	(
+				SELECT	A.*, ROWNUM RNUM	
+				FROM	(
+							SELECT	/*[articleDao.xml][getAllArticle]*/
+									P.PRDCT_ARTC_ID
+									, P.PRDCT_ARTC_SBJ
+									, P.PRDCT_ARTC_CONT
+									, P.PRDCT_ARTC_RL_FN
+									, P.PRDCT_ARTC_DP_FN
+									, P.PRDCT_ARTC_CRT_DT
+									, P.USR_ID
+									, P.CTGR_ID
+									, P.PRDCT_ARTC_PRICE
+									, U.USR_HSD_PWD
+									, U.USR_SALT
+									, U.USR_PNT
+									, U.USR_PHONE
+									, U.USR_NM
+									, U.USR_CRT_DT
+									, C.CTGR_NM
+							FROM	PRDCT_ARTC P
+									, USR U
+									, CTGR C
+							WHERE	P.USR_ID = U.USR_ID
+							AND		P.CTGR_ID = C.CTGR_ID
+							<if test="searchType==1">
+							AND		P.PRDCT_ARTC_SBJ LIKE '%'||#{searchKeyword}||'%'
+							</if>
+							<if test="searchType==2">
+							AND		U.USR_NM LIKE '%'||#{searchKeyword}||'%'
+							</if>
+							<if test="priceMin != 0">
+							AND		P.PRDCT_ARTC_PRICE >= #{priceMin}
+							</if>
+							<if test="priceMax != 0">
+							AND		P.PRDCT_ARTC_PRICE <![CDATA[<=]]> #{priceMax}
+							</if> 
+							<if test="categoryId !=0">
+							AND		P.CTGR_ID = #{categoryId}
+							</if>
+							<if test="orderBy==1">
+							ORDER	BY P.PRDCT_ARTC_PRICE ASC
+							</if>
+							<if test="orderBy==2">
+							ORDER	BY P.PRDCT_ARTC_PRICE DESC
+							</if>
+						) A
+				WHERE	ROWNUM <![CDATA[<=]]> #{endNumber}
+			)
+	WHERE	RNUM >= #{startNumber}
+	</select>
+	
+	<insert id="addNewArticle" parameterType="ArticleVO">
+	INSERT INTO /*[articleDao.xml][addNewArticle]*/
+				PRDCT_ARTC	(
+							   PRDCT_ARTC_ID
+							   , PRDCT_ARTC_SBJ
+							   , PRDCT_ARTC_CONT
+							   , PRDCT_ARTC_RL_FN
+							   , PRDCT_ARTC_DP_FN
+							   , PRDCT_ARTC_CRT_DT
+							   , USR_ID
+							   , CTGR_ID
+							   , PRDCT_ARTC_PRICE
+							) 
+	VALUES 					( 
+								'PA-' || TO_CHAR(SYSDATE,'YYYYMMDD') || '-' || LPAD(PRDCT_ARTC_ID_SEQ.NEXTVAL,6,'0')
+								, #{subject}
+								, #{content}
+								, #{realFileName}
+								, #{displayFileName}
+								, SYSDATE
+								, #{userId}
+								, #{categoryId}
+								, #{price}
+							)
+	</insert>
+	
+	<select id="getArticleById" resultMap="articleMap" parameterType="string">
+		SELECT	/*[articleDao.xml][getArticleById]*/
+				P.PRDCT_ARTC_ID
+				, P.PRDCT_ARTC_SBJ
+				, P.PRDCT_ARTC_CONT
+				, P.PRDCT_ARTC_RL_FN
+				, P.PRDCT_ARTC_DP_FN
+				, P.PRDCT_ARTC_CRT_DT
+				, P.USR_ID
+				, P.CTGR_ID
+				, P.PRDCT_ARTC_PRICE
+				, U.USR_HSD_PWD
+				, U.USR_SALT
+				, U.USR_PNT
+				, U.USR_PHONE
+				, U.USR_NM
+				, U.USR_CRT_DT
+				, C.CTGR_NM
+		FROM	PRDCT_ARTC P
+				, USR U
+				, CTGR C
+		WHERE	P.USR_ID = U.USR_ID
+		AND		P.CTGR_ID = C.CTGR_ID
+		AND		P.PRDCT_ARTC_ID = #{articleId}
+	</select>
+	
+	<delete id="txDeleteArticle" parameterType="string">
+		DELETE	/*[articleDao.xml][txDeleteArticle]*/
+		FROM	PRDCT_ARTC
+		WHERE	PRDCT_ARTC_ID = #{articleId}
+	</delete>
+	
+	<update id="txModifyArticle" parameterType="ArticleVO">
+		UPDATE	/*[articleDao.xml][txModifyArticle]*/
+				PRDCT_ARTC
+		SET		PRDCT_ARTC_SBJ    = #{subject},
+	      		PRDCT_ARTC_CONT   = #{content},
+				PRDCT_ARTC_RL_FN  = #{realFileName},
+				PRDCT_ARTC_DP_FN  = #{displayFileName},
+				CTGR_ID           = #{categoryId},
+				PRDCT_ARTC_PRICE  = #{price}
+		WHERE  PRDCT_ARTC_ID = #{articleId}
+	</update>
+	
+	<select id="getCount" resultType="_int" parameterType="ArticleSearchVO">
+		SELECT	COUNT(1)
+		FROM	PRDCT_ARTC
+		<where>
+		<if test="searchType==1">
+		AND		PRDCT_ARTC_SBJ LIKE '%'||#{searchKeyword}||'%'
+		</if>
+		<if test="searchType==2">
+		AND		USR_NM LIKE '%'||#{searchKeyword}||'%'
+		</if>
+		<if test="priceMin != 0">
+		AND		PRDCT_ARTC_PRICE >= #{priceMin}
+		</if>
+		<if test="priceMax != 0">
+		AND		PRDCT_ARTC_PRICE <![CDATA[<=]]> #{priceMax}
+		</if>
+		<if test="categoryId !=0 ">
+		AND		CTGR_ID = #{categoryId}
+		</if>
+		</where>
+	</select>
+	
+</mapper>

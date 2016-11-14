@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+						"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	
+	<typeAliases>
+		<!-- <typeAlias type="com.psy.pricearticle.vo.ReplyVO" alias="ReplyVO"/> -->
+		<typeAlias type="com.psy.pricearticle.vo.CategoryVO" alias="CategoryVO" />
+		<typeAlias type="com.psy.pricearticle.vo.ArticleSearchVO" alias="ArticleSearchVO"/>
+		<typeAlias type="com.psy.pricearticle.vo.ArticleVO" alias="ArticleVO" />
+		<typeAlias type="com.psy.user.vo.UserVO" alias="UserVO" />
+		<typeAlias type="com.psy.history.vo.HistroryVO" alias="HistroryVO"/>
+	</typeAliases>
+	
+	<mappers>
+		<!-- <mapper resource="com/psy/pricearticle/dao/impl/sql/replyDao.xml"/> -->
+		<mapper resource="com/psy/history/dao/impl/sql/historyDao.xml" />
+		<mapper resource="com/psy/pricearticle/dao/impl/sql/articleDao.xml"/>
+		<mapper resource="com/psy/user/dao/impl/sql/userDao.xml"/>
+	</mappers>
+	
+</configuration>					
